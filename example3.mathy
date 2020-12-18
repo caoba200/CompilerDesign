@@ -1,0 +1,9 @@
+func main() {
+	# error when using an undeclare variable
+	num a;
+	b = 2.9;
+
+	#error when redeclare a variable
+	num a;
+
+}

@@ -1,0 +1,11 @@
+func main() {
+	# example of comment
+	num a = 4.0 ^ 4;
+	frac b = 2 // 3 - 4 // 5;
+	if (a > 8.0) {
+		print ("true");
+	}
+	else {
+		print("false");
+	}
+}
