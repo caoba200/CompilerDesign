@@ -520,6 +520,7 @@ EXP:		    EXP TOKEN_RELATION_OPERATOR EXP
                     strcpy(l->token2, "num");
                     $$ = l;
 
+                    // Calculate sine
                     float temp = atof($2->value2);
                     float sine_temp = temp - temp * temp * temp / 6 + temp * temp * temp * temp * temp / 120 ;
                     string result = to_string(sine_temp);
@@ -539,15 +540,25 @@ EXP:		    EXP TOKEN_RELATION_OPERATOR EXP
 
                     strcpy(m->token2, "num");
                     $$ = m;
+
+                    // Calculate tan
+                    float temp = atof($2->value2);
+                    float sine = temp - temp * temp * temp / 6 + temp * temp * temp * temp * temp / 120 ;
+                    float cosine = 1 - sine * sine;
+                    float tangent = sine / cosine;
+                    string result = to_string(tangent);
+                    strcpy($$->value2, result.c_str());
                 }
                 /*...............polynomial expression................*/
-                | TOKEN_NUMBER TOKEN_COMMA TOKEN_INTCONST
+                | TOKEN_LB TOKEN_NUMBER TOKEN_COMMA TOKEN_INTCONST TOKEN_RB
                 {
                     tnode *n = CreateTnode();
                     strcpy(n->token, "EXP");
-                    n = AppendNode($1, "TOKEN_NUMBER", n);
-                    n = AppendNode($2, "TOKEN_COMMA", n);
-                    n = AppendNode($3, "TOKEN_INTCONST", n);
+                    n = AppendNode($1, "TOKEN_LB", n);
+                    n = AppendNode($2, "TOKEN_NUMBER", n);
+                    n = AppendNode($3, "TOKEN_COMMA", n);
+                    n = AppendNode($4, "TOKEN_INTCONST", n);
+                    n = AppendNode($5, "TOKEN_RB", n);
                     strcpy(n->token2, "poly");
                     $$ = n;
                 }
@@ -680,8 +691,12 @@ STMT_DECLARE :	  TYPE TOKEN_ID IDS
 
 					if (strcmp($3->value2, "") == 0)
 						env[$2] = "0";
-					else
-					    env[$2] = $3->value2;
+					else {
+                        string v2($3->value2);
+                        string v3($3->value3);
+                        string v4($3->value4);
+                        env[$2] = v2 + v3 + v4;
+                    }
 
 					variables[$2]= "$s" + std::to_string(countForS);
 					countForS++;
@@ -721,6 +736,8 @@ IDS :		      STMT_ASSIGN IDS
                     a = AppendNode($2, a);
                     $$ = a;
 					strcpy($$->value2, $1->value2);
+                    strcpy($$->value3, $1->value3);
+                    strcpy($$->value4, $1->value4);
                   }
                   | TOKEN_COMMA TOKEN_ID IDS
                   {
@@ -758,6 +775,9 @@ STMT_ASSIGN :     TOKEN_ID TOKEN_ASSIGN EXP
                 
                     $$ = a;
 
+                    strcpy($$->value2, $3->value2);
+                    strcpy($$->value3, $3->value3);
+                    strcpy($$->value4, $3->value4);
 
 					if (strcmp($3->value2, "") != 0 || strcmp($3->token3, "") != 0)
 					{
@@ -788,9 +808,9 @@ STMT_ASSIGN :     TOKEN_ID TOKEN_ASSIGN EXP
                     strcpy(typecheck, $2->token2);
                     
                     $$ = b;
-					strcpy($$->value2,$2->value2);
-                    strcpy($$->value3,$2->value3);
-                    strcpy($$->value4,$2->value4);
+					strcpy($$->value2, $2->value2);
+                    strcpy($$->value3, $2->value3);
+                    strcpy($$->value4, $2->value4);
                   };
 %%
 
